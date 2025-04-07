@@ -1,0 +1,21 @@
+{
+  "template": "https://github.com/blackary/cookiecutter-streamlit-component/",
+  "commit": "c972054b7b0890a1aa1c02e792bedc71c525ea87",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "author_name": "Matthias Bloch",
+      "author_email": "7060663+matbloch@users.noreply.github.com",
+      "project_name": "Streamlit Picture-in-Picture Video",
+      "package_name": "streamlit-picture-in-picture-video",
+      "import_name": "streamlit_picture_in_picture_video",
+      "description": "Streamlit component that allows you to render a video in picture-in-picture mode",
+      "deployment_via_github_actions": "y",
+      "working_with_dataframes": "n",
+      "open_source_license": "MIT license",
+      "_template": "https://github.com/blackary/cookiecutter-streamlit-component/",
+      "_commit": "c972054b7b0890a1aa1c02e792bedc71c525ea87"
+    }
+  },
+  "directory": null
+}

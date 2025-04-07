@@ -1,11 +1,11 @@
-# streamlit-custom-component
+# streamlit-picture-in-picture-video
 
-Streamlit component that allows you to do X
+Streamlit component that allows you to render a video in picture-in-picture mode
 
-## Installation instructions
+## Installation instructions 
 
 ```sh
-pip install streamlit-custom-component
+pip install streamlit-picture-in-picture-video
 ```
 
 ## Usage instructions
@@ -13,9 +13,8 @@ pip install streamlit-custom-component
 ```python
 import streamlit as st
 
-from my_component import my_component
+from streamlit_picture_in_picture_video import streamlit_picture_in_picture_video
 
-value = my_component()
+value = streamlit_picture_in_picture_video()
 
 st.write(value)
-```
