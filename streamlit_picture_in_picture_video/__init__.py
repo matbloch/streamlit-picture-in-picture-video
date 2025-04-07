@@ -112,8 +112,9 @@ def float_init(theme=True, include_unstable_primary=False):
         top: 0;
         left: 0;
         right: 0;
-        height: 20px;
-        background-color: rgba(0,0,0,0.5);
+        bottom: 65px;
+        // for debugging
+        // background-color: rgba(0,0,0,0.5);
         cursor: move;
         z-index: 101;
         opacity: 0;
@@ -146,6 +147,8 @@ def float_init(theme=True, include_unstable_primary=False):
             
             // Find the video container after a short delay to ensure DOM is loaded
             setTimeout(function() {
+                    
+                    
                 const videoContainer = root.querySelector('div.element-container:has(video#main-video)');
                 const video = root.querySelector('video#main-video');
                 
@@ -200,11 +203,18 @@ def float_init(theme=True, include_unstable_primary=False):
                         startWidth = videoContainer.offsetWidth;
                         startHeight = videoContainer.offsetHeight;
                     } 
-                    // Check if it's the top bar (for dragging)
-                    else if (e.offsetY < 20) {
-                        isDragging = true;
-                        startX = e.clientX;
-                        startY = e.clientY;
+                    // Check if we're over the video controls (bottom area)
+                    else {
+                        // Determine if we're in the controls area (bottom ~40px of the video)
+                        const controlsHeight = 40; // Approximate height of controls
+                        const isOverControls = videoContainer.offsetHeight - e.offsetY <= controlsHeight;
+                        
+                        // If we're not over controls, enable dragging
+                        if (!isOverControls) {
+                            isDragging = true;
+                            startX = e.clientX;
+                            startY = e.clientY;
+                        }
                     }
                     
                     if (isDragging || isResizing) {
@@ -254,7 +264,7 @@ def float_init(theme=True, include_unstable_primary=False):
                     cleanupEvents();
                 }
                 
-            }, 1000); // Wait for elements to be fully loaded
+            }, 100); // Wait for elements to be fully loaded
         </script>
     """)
 
