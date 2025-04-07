@@ -38,10 +38,8 @@ else:
 
 # Inspiration: https://github.com/bouzidanas/streamlit-float
 
-
-
 def float_init(theme=True, include_unstable_primary=False):
-# add css to streamlit app
+    # add css to streamlit app
     html_style = '''
     <style>
     div.element-container:has(div.float) {
@@ -74,11 +72,30 @@ def float_init(theme=True, include_unstable_primary=False):
         z-index: 99;
         bottom: 20px;
         right: 20px;
+        min-width: 240px;
         width: 320px;
+        max-width: 50vw;
         height: auto;
         border-radius: 10px;
         box-shadow: 0 0 12px rgba(0,0,0,0.3);
         overflow: hidden;
+        resize: both;
+        background-color: black;
+        padding: 0;
+        margin: 0;
+        transform-origin: bottom right;
+    }
+    
+    /* Add a resize handle */
+    div.element-container:has(video#main-video)::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 10px;
+        height: 10px;
+        cursor: nwse-resize;
+        background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 50%);
     }
     
     /* Make sure the video itself fits correctly in the container */
@@ -86,6 +103,26 @@ def float_init(theme=True, include_unstable_primary=False):
         width: 100%;
         height: auto;
         display: block;
+        object-fit: contain;
+    }
+    
+    /* Add a draggable header for moving the video */
+    div.element-container:has(video#main-video)::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 20px;
+        background-color: rgba(0,0,0,0.5);
+        cursor: move;
+        z-index: 101;
+        opacity: 0;
+        transition: opacity 0.2s;
+    }
+    
+    div.element-container:has(video#main-video):hover::before {
+        opacity: 1;
     }
     
     /* Style for any controls or elements inside the container */
@@ -97,7 +134,131 @@ def float_init(theme=True, include_unstable_primary=False):
     }
     </style>
     '''
+    
     st.markdown(html_style, unsafe_allow_html=True)
+    
+    # Inject JavaScript for handling dragging and resizing
+    components.html("""
+        <script>
+            console.log("Injecting JavaScript for handling dragging and resizing");
+            
+            // Get references to the parent document
+            const root = window.parent.document;
+            
+            // Find the video container after a short delay to ensure DOM is loaded
+            setTimeout(function() {
+                const videoContainer = root.querySelector('div.element-container:has(video#main-video)');
+                const video = root.querySelector('video#main-video');
+                
+                if (!videoContainer || !video) {
+                    console.log("Video container not found yet");
+                    return;
+                }
+                
+                console.log("Found video container, setting up resize and drag");
+                
+                // Create a resize handle in the top-left corner
+                const resizeHandle = document.createElement('div');
+                resizeHandle.style.position = 'absolute';
+                resizeHandle.style.top = '0';
+                resizeHandle.style.left = '0';
+                resizeHandle.style.width = '20px';
+                resizeHandle.style.height = '20px';
+                resizeHandle.style.cursor = 'nwse-resize';
+                resizeHandle.style.background = 'linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.5) 50%, transparent 50%, transparent 100%)';
+                resizeHandle.style.zIndex = '102';
+                videoContainer.appendChild(resizeHandle);
+                
+                // Add necessary styles to maintain proper positioning
+                videoContainer.style.transformOrigin = 'top left';
+                videoContainer.style.resize = 'none'; // Disable default resize
+                
+                // Store original dimensions to maintain aspect ratio
+                const originalWidth = videoContainer.offsetWidth;
+                const originalHeight = videoContainer.offsetHeight;
+                const aspectRatio = originalWidth / originalHeight;
+                
+                // Variables for drag and resize
+                let isDragging = false;
+                let isResizing = false;
+                let startX, startY, startWidth, startHeight, startRight, startBottom;
+                
+                // Handle mousedown events for both drag and resize
+                videoContainer.addEventListener('mousedown', function(e) {
+                    // Check if it's the resize handle
+                    if (e.target === resizeHandle) {
+                        isResizing = true;
+                        startX = e.clientX;
+                        startY = e.clientY;
+                        startWidth = videoContainer.offsetWidth;
+                        startHeight = videoContainer.offsetHeight;
+                        startRight = parseInt(videoContainer.style.right || '20', 10);
+                        startBottom = parseInt(videoContainer.style.bottom || '20', 10);
+                    } 
+                    // Check if it's the top bar (for dragging)
+                    else if (e.offsetY < 20) {
+                        isDragging = true;
+                        startX = e.clientX;
+                        startY = e.clientY;
+                    }
+                    
+                    if (isDragging || isResizing) {
+                        e.preventDefault();
+                        root.addEventListener('mousemove', handleMouseMove);
+                        root.addEventListener('mouseup', handleMouseUp);
+                    }
+                });
+                
+                // Handle mouse movement
+                function handleMouseMove(e) {
+                    if (isResizing) {
+                        // Calculate new width based on mouse movement
+                        const deltaX = startX - e.clientX;
+                        const newWidth = Math.max(240, startWidth + deltaX);
+                        
+                        // Calculate height based on aspect ratio
+                        const newHeight = newWidth / aspectRatio;
+                        
+                        // Calculate new right position to keep the right edge fixed
+                        const viewportWidth = window.innerWidth;
+                        const newRight = startRight + (newWidth - startWidth);
+                        
+                        // Update container dimensions
+                        videoContainer.style.width = newWidth + 'px';
+                        videoContainer.style.height = newHeight + 'px';
+                        videoContainer.style.right = newRight + 'px';
+                    } else if (isDragging) {
+                        // Calculate new position
+                        const deltaX = e.clientX - startX;
+                        const deltaY = e.clientY - startY;
+                        
+                        // Update position (keeping it anchored to bottom-right)
+                        const viewportWidth = window.innerWidth;
+                        const viewportHeight = window.innerHeight;
+                        
+                        const currRight = parseInt(videoContainer.style.right || '20', 10);
+                        const currBottom = parseInt(videoContainer.style.bottom || '20', 10);
+                        
+                        videoContainer.style.right = (currRight - deltaX) + 'px';
+                        videoContainer.style.bottom = (currBottom - deltaY) + 'px';
+                        
+                        // Update starting position for next move
+                        startX = e.clientX;
+                        startY = e.clientY;
+                    }
+                }
+                
+                // Handle mouse up
+                function handleMouseUp() {
+                    isResizing = false;
+                    isDragging = false;
+                    root.removeEventListener('mousemove', handleMouseMove);
+                    root.removeEventListener('mouseup', handleMouseUp);
+                }
+                
+            }, 1000); // Wait for elements to be fully loaded
+        </script>
+    """)
 
 
 # Create a wrapper function for the component. This is an optional
@@ -137,9 +298,7 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
     # value of the component before the user has interacted with it.
     _component_func(video_src=video_src, controls=controls, auto_play=auto_play, start_in_pip=start_in_pip, key=key, default=0)
 
-
-
-
+    # Initialize the floating video functionality
     float_init()
 
     # Create the video tag with proper HTML
