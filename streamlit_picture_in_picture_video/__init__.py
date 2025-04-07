@@ -40,8 +40,7 @@ else:
 
 def float_init(theme=True, include_unstable_primary=False):
     # add css to streamlit app
-    html_style = '''
-    <style>
+    html_style = '''<style>
     div.element-container:has(div.float) {
         position: absolute!important;
     }
@@ -64,7 +63,6 @@ def float_init(theme=True, include_unstable_primary=False):
         position: fixed;
         z-index: 99; 
     }
-
 
     /* Target element-container that contains a video#main-video at any depth */
     div.element-container:has(video#main-video) {
@@ -132,13 +130,9 @@ def float_init(theme=True, include_unstable_primary=False):
         right: 10px;
         z-index: 100;
     }
-    </style>
-    '''
+    </style>'''
     
-    st.markdown(html_style, unsafe_allow_html=True)
-    
-    # Inject JavaScript for handling dragging and resizing
-    components.html("""
+    html_script = """
         <script>
             console.log("Injecting JavaScript for handling dragging and resizing");
             
@@ -266,7 +260,12 @@ def float_init(theme=True, include_unstable_primary=False):
                 
             }, 100); // Wait for elements to be fully loaded
         </script>
-    """)
+    """
+
+    st.markdown(html_style, unsafe_allow_html=True)
+
+    # Inject JavaScript for handling dragging and resizing
+    components.html(html_script, height=0)
 
 
 # Create a wrapper function for the component. This is an optional
@@ -304,7 +303,7 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
     #
     # "default" is a special argument that specifies the initial return
     # value of the component before the user has interacted with it.
-    _component_func(video_src=video_src, controls=controls, auto_play=auto_play, start_in_pip=start_in_pip, key=key, default=0)
+    #_component_func(video_src=video_src, controls=controls, auto_play=auto_play, start_in_pip=start_in_pip, key=key, default=0)
 
     # Initialize the floating video functionality
     float_init()
