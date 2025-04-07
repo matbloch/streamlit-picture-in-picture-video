@@ -36,6 +36,70 @@ else:
     _component_func = components.declare_component("streamlit_picture_in_picture_video", path=build_dir)
 
 
+# Inspiration: https://github.com/bouzidanas/streamlit-float
+
+
+
+def float_init(theme=True, include_unstable_primary=False):
+# add css to streamlit app
+    html_style = '''
+    <style>
+    div.element-container:has(div.float) {
+        position: absolute!important;
+    }
+    div.element-container:has(div.floating) {
+        position: absolute!important;
+    }
+    div:has( >.element-container div.float) {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        z-index: 99;
+    }
+    div.float, div.elim {
+        display: none;
+        height:0%;
+    }
+    div.floating {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        z-index: 99; 
+    }
+
+
+    /* Target element-container that contains a video#main-video at any depth */
+    div.element-container:has(video#main-video) {
+        position: fixed !important;
+        z-index: 99;
+        bottom: 20px;
+        right: 20px;
+        width: 320px;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 0 12px rgba(0,0,0,0.3);
+        overflow: hidden;
+    }
+    
+    /* Make sure the video itself fits correctly in the container */
+    video#main-video {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    /* Style for any controls or elements inside the container */
+    div.element-container:has(video#main-video) button {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        z-index: 100;
+    }
+    </style>
+    '''
+    st.markdown(html_style, unsafe_allow_html=True)
+
+
 # Create a wrapper function for the component. This is an optional
 # best practice - we could simply expose the component function returned by
 # `declare_component` and call it done. The wrapper allows us to customize
@@ -73,6 +137,11 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
     # value of the component before the user has interacted with it.
     _component_func(video_src=video_src, controls=controls, auto_play=auto_play, start_in_pip=start_in_pip, key=key, default=0)
 
+
+
+
+    float_init()
+
     # Create the video tag with proper HTML
     video_tag = f'<video id="main-video" src="{video_src}" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"'
     
@@ -88,51 +157,6 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
     video_html = f"""
     <div style="position: relative; padding-bottom: 10px;">
         {video_tag}
-        
-        <script>
-            // Add PiP button if browser supports it
-            (function() {{
-                const video = document.getElementById('main-video');
-                if (document.pictureInPictureEnabled) {{
-                    const pipButton = document.createElement('button');
-                    pipButton.textContent = 'Enter PiP';
-                    pipButton.style.position = 'absolute';
-                    pipButton.style.bottom = '20px';
-                    pipButton.style.right = '20px';
-                    pipButton.style.backgroundColor = '#0066cc';
-                    pipButton.style.color = 'white';
-                    pipButton.style.border = 'none';
-                    pipButton.style.borderRadius = '4px';
-                    pipButton.style.padding = '8px 12px';
-                    pipButton.style.cursor = 'pointer';
-                    
-                    pipButton.addEventListener('click', function() {{
-                        if (document.pictureInPictureElement) {{
-                            document.exitPictureInPicture().catch(err => {{
-                                console.error('Error exiting PiP mode:', err);
-                            }});
-                        }} else {{
-                            video.requestPictureInPicture().catch(err => {{
-                                console.error('Error entering PiP mode:', err);
-                            }});
-                        }}
-                    }});
-                    
-                    video.parentElement.appendChild(pipButton);
-                    
-                    // Update button text based on PiP state
-                    video.addEventListener('enterpictureinpicture', () => {{
-                        pipButton.textContent = 'Exit PiP';
-                    }});
-                    
-                    video.addEventListener('leavepictureinpicture', () => {{
-                        pipButton.textContent = 'Enter PiP';
-                    }});
-                    
-                    {f'// Auto-enter PiP mode when loaded\n                    video.addEventListener("loadedmetadata", () => {{\n                        // Need a user gesture for autoplay/PiP in most browsers\n                        video.play().then(() => {{\n                            video.requestPictureInPicture().catch(err => {{\n                                console.error("Could not auto-enter PiP:", err);\n                            }});\n                        }}).catch(err => {{\n                            console.error("Could not autoplay:", err);\n                        }});\n                    }});' if start_in_pip else ''}
-                }}
-            }})();
-        </script>
     </div>
     """
     
