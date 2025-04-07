@@ -72,8 +72,7 @@ def float_init(theme=True, include_unstable_primary=False):
         z-index: 99;
         bottom: 20px;
         right: 20px;
-        min-width: 240px;
-        width: 320px;
+        width: 20vw; /* 1/5 of viewport width */
         max-width: 50vw;
         height: auto;
         border-radius: 10px;
@@ -144,8 +143,6 @@ def float_init(theme=True, include_unstable_primary=False):
             
             // Get references to the parent document
             const root = window.parent.document;
-            const doc = window.parent.document;
-            const body = root.body;
             
             // Find the video container after a short delay to ensure DOM is loaded
             setTimeout(function() {
@@ -183,52 +180,28 @@ def float_init(theme=True, include_unstable_primary=False):
                 // Variables for drag and resize
                 let isDragging = false;
                 let isResizing = false;
-                let startX, startY, startWidth, startHeight, startRight, startBottom;
+                let startX, startY, startWidth, startHeight;
                 
-                // Safety function to ensure we always clean up
+                // Clean up event listeners
                 function cleanupEvents() {
-                    console.log("Cleaning up events");
                     isResizing = false;
                     isDragging = false;
-                    // Remove from multiple possible sources to be thorough
                     root.removeEventListener('mousemove', handleMouseMove);
                     root.removeEventListener('mouseup', handleMouseUp);
-                    doc.removeEventListener('mousemove', handleMouseMove);
-                    doc.removeEventListener('mouseup', handleMouseUp);
-                    window.removeEventListener('mousemove', handleMouseMove);
-                    window.removeEventListener('mouseup', handleMouseUp);
-                    body.removeEventListener('mousemove', handleMouseMove);
-                    body.removeEventListener('mouseup', handleMouseUp);
-                    document.removeEventListener('mousemove', handleMouseMove);
-                    document.removeEventListener('mouseup', handleMouseUp);
-                    
-                    // Also handle edge cases like mouse leaving the window
-                    root.removeEventListener('mouseleave', cleanupEvents);
-                    document.removeEventListener('mouseleave', cleanupEvents);
-                    window.removeEventListener('blur', cleanupEvents);
                 }
                 
                 // Handle mousedown events for both drag and resize
                 videoContainer.addEventListener('mousedown', function(e) {
-                    console.log("Mouse down");
-                    
-                    // Clean up any existing events first
-                    cleanupEvents();
-                    
                     // Check if it's the resize handle
                     if (e.target === resizeHandle) {
-                        console.log("Resizing");
                         isResizing = true;
                         startX = e.clientX;
                         startY = e.clientY;
                         startWidth = videoContainer.offsetWidth;
                         startHeight = videoContainer.offsetHeight;
-                        startRight = parseInt(videoContainer.style.right || '20', 10);
-                        startBottom = parseInt(videoContainer.style.bottom || '20', 10);
                     } 
                     // Check if it's the top bar (for dragging)
                     else if (e.offsetY < 20) {
-                        console.log("Dragging");
                         isDragging = true;
                         startX = e.clientX;
                         startY = e.clientY;
@@ -236,31 +209,13 @@ def float_init(theme=True, include_unstable_primary=False):
                     
                     if (isDragging || isResizing) {
                         e.preventDefault();
-                        e.stopPropagation();
-                        
-                        // Add listeners to multiple targets to ensure capture
-                        root.addEventListener('mousemove', handleMouseMove, { passive: false });
+                        root.addEventListener('mousemove', handleMouseMove);
                         root.addEventListener('mouseup', handleMouseUp);
-                        document.addEventListener('mousemove', handleMouseMove, { passive: false });
-                        document.addEventListener('mouseup', handleMouseUp);
-                        window.addEventListener('mousemove', handleMouseMove, { passive: false });
-                        window.addEventListener('mouseup', handleMouseUp);
-                        
-                        // Also listen for edge cases
-                        //root.addEventListener('mouseleave', cleanupEvents);
-                        //document.addEventListener('mouseleave', cleanupEvents);
-                        //window.addEventListener('blur', cleanupEvents);
                     }
                 });
                 
                 // Handle mouse movement
                 function handleMouseMove(e) {
-                    console.log("Handling mouse move");
-                    
-                    // Prevent default behavior to ensure smooth operation
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
                     if (isResizing) {
                         // Calculate new width based on mouse movement
                         const deltaX = startX - e.clientX;
@@ -270,15 +225,6 @@ def float_init(theme=True, include_unstable_primary=False):
                         const newHeight = newWidth / aspectRatio;
                         
                         // Keep the bottom-right corner fixed
-                        const viewportWidth = window.innerWidth;
-                        const viewportHeight = window.innerHeight;
-                        
-                        // The right edge should remain at the same position
-                        // No need to change the 'right' property
-                        
-                        // The bottom edge should remain at the same position
-                        // No need to change the 'bottom' property
-                        
                         // Update container dimensions only
                         videoContainer.style.width = newWidth + 'px';
                         videoContainer.style.height = newHeight + 'px';
@@ -301,17 +247,12 @@ def float_init(theme=True, include_unstable_primary=False):
                         startX = e.clientX;
                         startY = e.clientY;
                     }
-                    return false;
                 }
                 
                 // Handle mouse up
-                function handleMouseUp(e) {
-                    console.log("Mouse up");
+                function handleMouseUp() {
                     cleanupEvents();
                 }
-                
-                // Ensure cleanup on page unload
-                window.addEventListener('unload', cleanupEvents);
                 
             }, 1000); // Wait for elements to be fully loaded
         </script>
