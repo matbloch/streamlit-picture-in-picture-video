@@ -8,6 +8,8 @@ import {
 interface PictureInPicturePlayerProps extends ComponentProps {
   args: {
     video_src: string;
+    controls: boolean;
+    auto_play: boolean;
   }
 }
 
@@ -18,17 +20,17 @@ interface PictureInPicturePlayerProps extends ComponentProps {
 function PictureInPicturePlayer({ args, disabled, theme }: PictureInPicturePlayerProps) {
 
 
-const { video_src } = args
+const { video_src, controls, auto_play } = args
+
+console.log(video_src, controls, auto_play)
 
 
 const width = "100%"
 const height = "auto"
-const controls = true
-const autoPlay = false
   
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPipActive, setIsPipActive] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [isPlaying, setIsPlaying] = useState(auto_play);
 
   useEffect(() => {
     // Add event listeners for picture-in-picture mode changes
@@ -97,7 +99,7 @@ const autoPlay = false
         width={width}
         height={height}
         controls={controls}
-        autoPlay={autoPlay}
+        autoPlay={auto_play}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
       />

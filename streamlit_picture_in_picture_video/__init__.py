@@ -40,7 +40,7 @@ else:
 # `declare_component` and call it done. The wrapper allows us to customize
 # our component's API: we can pre-process its input args, post-process its
 # output value, and add a docstring for users.
-def streamlit_picture_in_picture_video(video_src, key=None):
+def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, auto_play: bool=False, key=None):
     """Create a new instance of "streamlit_picture_in_picture_video".
 
     Parameters
@@ -67,7 +67,7 @@ def streamlit_picture_in_picture_video(video_src, key=None):
     #
     # "default" is a special argument that specifies the initial return
     # value of the component before the user has interacted with it.
-    component_value = _component_func(video_src=video_src, key=key, default=0)
+    component_value = _component_func(video_src=video_src, controls=controls, auto_play=auto_play, key=key, default=0)
 
     # We could modify the value returned from the component if we wanted.
     # There's no need to do this in our simple example - but it's an option.
