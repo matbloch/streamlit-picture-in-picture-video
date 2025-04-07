@@ -144,6 +144,8 @@ def float_init(theme=True, include_unstable_primary=False):
             
             // Get references to the parent document
             const root = window.parent.document;
+            const doc = window.parent.document;
+            const body = root.body;
             
             // Find the video container after a short delay to ensure DOM is loaded
             setTimeout(function() {
@@ -183,10 +185,39 @@ def float_init(theme=True, include_unstable_primary=False):
                 let isResizing = false;
                 let startX, startY, startWidth, startHeight, startRight, startBottom;
                 
+                // Safety function to ensure we always clean up
+                function cleanupEvents() {
+                    console.log("Cleaning up events");
+                    isResizing = false;
+                    isDragging = false;
+                    // Remove from multiple possible sources to be thorough
+                    root.removeEventListener('mousemove', handleMouseMove);
+                    root.removeEventListener('mouseup', handleMouseUp);
+                    doc.removeEventListener('mousemove', handleMouseMove);
+                    doc.removeEventListener('mouseup', handleMouseUp);
+                    window.removeEventListener('mousemove', handleMouseMove);
+                    window.removeEventListener('mouseup', handleMouseUp);
+                    body.removeEventListener('mousemove', handleMouseMove);
+                    body.removeEventListener('mouseup', handleMouseUp);
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                    
+                    // Also handle edge cases like mouse leaving the window
+                    root.removeEventListener('mouseleave', cleanupEvents);
+                    document.removeEventListener('mouseleave', cleanupEvents);
+                    window.removeEventListener('blur', cleanupEvents);
+                }
+                
                 // Handle mousedown events for both drag and resize
                 videoContainer.addEventListener('mousedown', function(e) {
+                    console.log("Mouse down");
+                    
+                    // Clean up any existing events first
+                    cleanupEvents();
+                    
                     // Check if it's the resize handle
                     if (e.target === resizeHandle) {
+                        console.log("Resizing");
                         isResizing = true;
                         startX = e.clientX;
                         startY = e.clientY;
@@ -197,6 +228,7 @@ def float_init(theme=True, include_unstable_primary=False):
                     } 
                     // Check if it's the top bar (for dragging)
                     else if (e.offsetY < 20) {
+                        console.log("Dragging");
                         isDragging = true;
                         startX = e.clientX;
                         startY = e.clientY;
@@ -204,13 +236,31 @@ def float_init(theme=True, include_unstable_primary=False):
                     
                     if (isDragging || isResizing) {
                         e.preventDefault();
-                        root.addEventListener('mousemove', handleMouseMove);
+                        e.stopPropagation();
+                        
+                        // Add listeners to multiple targets to ensure capture
+                        root.addEventListener('mousemove', handleMouseMove, { passive: false });
                         root.addEventListener('mouseup', handleMouseUp);
+                        document.addEventListener('mousemove', handleMouseMove, { passive: false });
+                        document.addEventListener('mouseup', handleMouseUp);
+                        window.addEventListener('mousemove', handleMouseMove, { passive: false });
+                        window.addEventListener('mouseup', handleMouseUp);
+                        
+                        // Also listen for edge cases
+                        //root.addEventListener('mouseleave', cleanupEvents);
+                        //document.addEventListener('mouseleave', cleanupEvents);
+                        //window.addEventListener('blur', cleanupEvents);
                     }
                 });
                 
                 // Handle mouse movement
                 function handleMouseMove(e) {
+                    console.log("Handling mouse move");
+                    
+                    // Prevent default behavior to ensure smooth operation
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     if (isResizing) {
                         // Calculate new width based on mouse movement
                         const deltaX = startX - e.clientX;
@@ -219,14 +269,19 @@ def float_init(theme=True, include_unstable_primary=False):
                         // Calculate height based on aspect ratio
                         const newHeight = newWidth / aspectRatio;
                         
-                        // Calculate new right position to keep the right edge fixed
+                        // Keep the bottom-right corner fixed
                         const viewportWidth = window.innerWidth;
-                        const newRight = startRight + (newWidth - startWidth);
+                        const viewportHeight = window.innerHeight;
                         
-                        // Update container dimensions
+                        // The right edge should remain at the same position
+                        // No need to change the 'right' property
+                        
+                        // The bottom edge should remain at the same position
+                        // No need to change the 'bottom' property
+                        
+                        // Update container dimensions only
                         videoContainer.style.width = newWidth + 'px';
                         videoContainer.style.height = newHeight + 'px';
-                        videoContainer.style.right = newRight + 'px';
                     } else if (isDragging) {
                         // Calculate new position
                         const deltaX = e.clientX - startX;
@@ -246,15 +301,17 @@ def float_init(theme=True, include_unstable_primary=False):
                         startX = e.clientX;
                         startY = e.clientY;
                     }
+                    return false;
                 }
                 
                 // Handle mouse up
-                function handleMouseUp() {
-                    isResizing = false;
-                    isDragging = false;
-                    root.removeEventListener('mousemove', handleMouseMove);
-                    root.removeEventListener('mouseup', handleMouseUp);
+                function handleMouseUp(e) {
+                    console.log("Mouse up");
+                    cleanupEvents();
                 }
+                
+                // Ensure cleanup on page unload
+                window.addEventListener('unload', cleanupEvents);
                 
             }, 1000); // Wait for elements to be fully loaded
         </script>
