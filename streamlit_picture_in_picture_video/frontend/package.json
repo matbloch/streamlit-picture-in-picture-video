@@ -1,6 +1,6 @@
 {
-  "name": "my_component",
-  "version": "0.1.0",
+  "name": "streamlit_picture_in_picture_video",
+  "version": "0.0.1",
   "private": true,
   "dependencies": {
     "react": "^16.13.1",

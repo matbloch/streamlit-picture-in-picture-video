@@ -43,6 +43,7 @@ npm start
 streamlet run streamlit_picture_in_picture_video/example.py
 ```
 
+**03. Open test website**
 
 
 ## Installation instructions 
