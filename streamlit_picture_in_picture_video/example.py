@@ -9,5 +9,8 @@ st.subheader("Component with constant args")
 
 # Create an instance of our component with a constant `name` arg, and
 # print its output value.
-num_clicks = streamlit_picture_in_picture_video("World")
-st.markdown("You've clicked %s times!" % int(num_clicks))
+
+streamlit_picture_in_picture_video("https://storage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4")
+
+#num_clicks = streamlit_picture_in_picture_video("World")
+#st.markdown("You've clicked %s times!" % int(num_clicks))
