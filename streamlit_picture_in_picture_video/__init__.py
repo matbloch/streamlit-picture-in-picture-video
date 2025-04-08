@@ -40,7 +40,7 @@ else:
 
 def float_init(theme=True, include_unstable_primary=False):
     # add css to streamlit app
-    html_style = '''<style>
+    html_style = '''<div class="my-markdown-container"><style>
     div.element-container:has(div.float) {
         position: absolute!important;
     }
@@ -70,7 +70,7 @@ def float_init(theme=True, include_unstable_primary=False):
         z-index: 99;
         bottom: 20px;
         right: 20px;
-        width: 20vw; /* 1/5 of viewport width */
+        width: 25vw; /* 1/4 of viewport width */
         max-width: 50vw;
         height: auto;
         border-radius: 10px;
@@ -130,7 +130,21 @@ def float_init(theme=True, include_unstable_primary=False):
         right: 10px;
         z-index: 100;
     }
-    </style>'''
+
+    // target the markdown container and remove the flexbox gap by using a negative margin
+    div.stMarkdown:has(.my-markdown-container) {
+        height: 20px !important;
+        background: red;
+        //margin: -0.5rem 0 !important;
+    }
+
+    .my-markdown-container {
+        padding: 0 !important;
+        margin: -0.5rem 0 !important;
+    }
+    </style>
+    </div>
+    '''
     
     html_script = """
         <script>
@@ -264,8 +278,9 @@ def float_init(theme=True, include_unstable_primary=False):
 
     st.markdown(html_style, unsafe_allow_html=True)
 
+
     # Inject JavaScript for handling dragging and resizing
-    components.html(html_script, height=0)
+    #components.html(html_script, height=0)
 
 
 # Create a wrapper function for the component. This is an optional
