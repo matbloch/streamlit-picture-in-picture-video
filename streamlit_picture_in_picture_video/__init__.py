@@ -1,6 +1,7 @@
 import os
 import streamlit.components.v1 as components
 import streamlit as st
+import base64
 
 # Create a _RELEASE constant. We'll set this to False while we're developing
 # the component, and True when we're ready to package and distribute it.
@@ -307,9 +308,15 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
     # Initialize the floating video functionality
     float_init()
 
+    # Check if the video is a local file, if yes, encode it to base64. Otherwise, use the url.
+    if os.path.exists(video_src):
+        with open(video_src, "rb") as f:
+            video_bytes = f.read()
+        b64_encoded = base64.b64encode(video_bytes).decode()
+        video_src = f"data:video/mp4;base64,{b64_encoded}"
+
     # Create the video tag with proper HTML
     video_tag = f'<video id="main-video" src="{video_src}" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"'
-    
     if controls:
         video_tag += ' controls'
     if auto_play:
@@ -317,8 +324,6 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
         
     # Close the video tag properly
     video_tag += '></video>'
-
-    # Create a video element with HTML
     video_html = f"""
     <div style="position: relative;">
         {video_tag}
