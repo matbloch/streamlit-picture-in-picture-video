@@ -17,33 +17,24 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-**01. Install streamlet**
+**02. Install streamlet**
 ```bash
 pip install streamlet
 ```
 
-**02. Install requirements for frontend**
-
-
-```bash
-cd frontend
-npm install
-```
-
 ### Run dev environment
 
-**01. Start frontend dev server (to serve frontend)**
 
-```bash
-npm start
-```
+**01. Run python Streamlet component**
+> Note: There is no frontend for this component, no need to start an NPM dev server
 
-**02. Run python Streamlet component**
 ```bash
 streamlet run streamlit_picture_in_picture_video/example.py
 ```
 
-**03. Open test website**
+**02. Open test website**
+
+- Local URL: http://localhost:8501
 
 
 ## Installation instructions 
@@ -59,9 +50,7 @@ import streamlit as st
 
 from streamlit_picture_in_picture_video import streamlit_picture_in_picture_video
 
-value = streamlit_picture_in_picture_video()
-
-st.write(value)
+streamlit_picture_in_picture_video()
 ````
 
 

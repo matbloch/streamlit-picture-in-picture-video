@@ -36,8 +36,6 @@ else:
     _component_func = components.declare_component("streamlit_picture_in_picture_video", path=build_dir)
 
 
-# Inspiration: https://github.com/bouzidanas/streamlit-float
-
 def float_init(theme=True, include_unstable_primary=False):
     # add css to streamlit app
     html_style = '''<style>
@@ -131,10 +129,10 @@ def float_init(theme=True, include_unstable_primary=False):
         z-index: 100;
     }
 
+    /* Workaround for 1rem gap between containers that injects JS */
     div.element-container:has(div.pin-container) {
         margin-top: -3.5rem;
         display: block;
-        //height: 20px;
         background: green;
     }
     </style>
@@ -271,16 +269,13 @@ def float_init(theme=True, include_unstable_primary=False):
     """
 
     st.html(html_style)
-    #st.html(html_script)
-
 
     # Inject JavaScript for handling dragging and resizing
     # Use components.html to make sure JS can be executed and is run after page load
     components.html(html_script, height=0)
 
-
+    # Add a container that allows to compensate for 1rem gap between containers that injects JS
     st.html("""<div class="pin-container" style="padding: 0;"></div>""")
-    #st.markdown(html_script, unsafe_allow_html=True)
 
 
 # Create a wrapper function for the component. This is an optional
@@ -288,7 +283,7 @@ def float_init(theme=True, include_unstable_primary=False):
 # `declare_component` and call it done. The wrapper allows us to customize
 # our component's API: we can pre-process its input args, post-process its
 # output value, and add a docstring for users.
-def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, auto_play: bool=False, start_in_pip: bool=False, key=None):
+def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, auto_play: bool=False, key=None):
     """Create a new instance of "streamlit_picture_in_picture_video".
 
     Parameters
@@ -299,8 +294,6 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
         Whether to show video controls.
     auto_play: bool
         Whether to autoplay the video.
-    start_in_pip: bool
-        Whether to start the video in picture-in-picture mode.
     key: str or None
         An optional key that uniquely identifies this component.
 
@@ -312,14 +305,6 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
         frontend.)
 
     """
-    # Call through to our private component function. Arguments we pass here
-    # will be sent to the frontend, where they'll be available in an "args"
-    # dictionary.
-    #
-    # "default" is a special argument that specifies the initial return
-    # value of the component before the user has interacted with it.
-    #_component_func(video_src=video_src, controls=controls, auto_play=auto_play, start_in_pip=start_in_pip, key=key, default=0)
-
     # Initialize the floating video functionality
     float_init()
 
