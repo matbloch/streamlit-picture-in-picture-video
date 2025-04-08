@@ -58,3 +58,8 @@ streamlet run streamlit_picture_in_picture_video/example.py
 
 
 
+## 04. Building a Python wheel
+
+```bash
+python setup.py sdist bdist_wheel
+```
