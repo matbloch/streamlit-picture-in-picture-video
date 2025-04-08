@@ -32,7 +32,7 @@ else:
     # replace the `url` param with `path`, and point it to the component's
     # build directory:
     parent_dir = os.path.dirname(os.path.abspath(__file__))
-    _component_func = components.declare_component("streamlit_picture_in_picture_video")
+    _component_func = components.declare_component("streamlit_picture_in_picture_video", url="")
 
 
 def float_init(theme=True, include_unstable_primary=False):
