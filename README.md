@@ -60,6 +60,14 @@ streamlet run streamlit_picture_in_picture_video/example.py
 
 ## 04. Building a Python wheel
 
+01. Change the release flag in `streamlit_picture_in_picture/__init__.py` to `True`
+
+```python
+_RELEASE = True
+```
+
+02. Build the wheel
+
 ```bash
 python setup.py sdist bdist_wheel
 ```
