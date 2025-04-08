@@ -321,7 +321,7 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
 
     # Create a video element with HTML
     video_html = f"""
-    <div style="position: relative; padding-bottom: 10px;">
+    <div style="position: relative;">
         {video_tag}
     </div>
     """
