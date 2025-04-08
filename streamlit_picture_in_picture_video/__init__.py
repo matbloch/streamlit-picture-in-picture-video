@@ -130,6 +130,13 @@ def float_init(theme=True, include_unstable_primary=False):
         right: 10px;
         z-index: 100;
     }
+
+    div.element-container:has(div.pin-container) {
+        margin-top: -3.5rem;
+        display: block;
+        //height: 20px;
+        background: green;
+    }
     </style>
     '''
     
@@ -264,10 +271,16 @@ def float_init(theme=True, include_unstable_primary=False):
     """
 
     st.html(html_style)
+    #st.html(html_script)
 
 
     # Inject JavaScript for handling dragging and resizing
-    #components.html(html_script, height=0)
+    # Use components.html to make sure JS can be executed and is run after page load
+    components.html(html_script, height=0)
+
+
+    st.html("""<div class="pin-container" style="padding: 0;"></div>""")
+    #st.markdown(html_script, unsafe_allow_html=True)
 
 
 # Create a wrapper function for the component. This is an optional
@@ -327,5 +340,4 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
         {video_tag}
     </div>
     """
-    
-    st.markdown(video_html, unsafe_allow_html=True)
+    st.html(video_html)
