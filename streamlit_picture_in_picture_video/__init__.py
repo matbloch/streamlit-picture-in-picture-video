@@ -105,6 +105,7 @@ def inject_styles_and_scripts(max_video_width_percentage: int=50):
         margin-top: -3.5rem;
         display: block;
         background: green;
+        height: 0px !important;
     }
     </style>
     '''
