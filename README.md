@@ -71,3 +71,8 @@ _RELEASE = True
 ```bash
 python setup.py sdist bdist_wheel
 ```
+
+03. Publish to PyPi
+```bash
+twine upload dist/*
+```
