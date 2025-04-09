@@ -112,8 +112,6 @@ def inject_styles_and_scripts(max_video_width_percentage: int=50):
     # Create a JavaScript string with the maxWidthPercentage properly injected
     html_script = """
         <script>
-            console.log("Injecting JavaScript for handling dragging and resizing");
-            
             // Get references to the parent document
             const root = window.parent.document;
             
@@ -124,11 +122,9 @@ def inject_styles_and_scripts(max_video_width_percentage: int=50):
                 const videoContainer = root.querySelector('div.element-container:has(video.picture-in-picture-video)');
                 const video = root.querySelector('video.picture-in-picture-video');                
                 if (!videoContainer || !video) {
-                    console.log("Video container not found yet");
+                    console.log("!! Video container for picture-in-picture video not found yet");
                     return;
                 }
-                
-                console.log("Found video container, setting up resize and drag");
                 
                 // Create a resize handle in the top-left corner
                 const resizeHandle = document.createElement('div');
@@ -212,8 +208,6 @@ def inject_styles_and_scripts(max_video_width_percentage: int=50):
                         const maxWidth = calculateMaxWidth();
                         const minWidth = 240;
                         
-                        console.log("Max width:", maxWidth);
-                        
                         // Apply min/max constraints
                         const newWidth = Math.min(maxWidth, Math.max(minWidth, startWidth + deltaX));
                         
@@ -257,8 +251,6 @@ def inject_styles_and_scripts(max_video_width_percentage: int=50):
                     
                     // Get max width from the calculation function
                     const maxWidth = calculateMaxWidth();
-
-                    console.log("Current width:", currentWidth);
                     
                     // If current width exceeds max width, resize
                     if (currentWidth > maxWidth) {
