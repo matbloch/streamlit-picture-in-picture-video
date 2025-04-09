@@ -2,11 +2,11 @@
 
 > Streamlit component that allows you to render a video in picture-in-picture mode
 
-<img src="preview.gif" alt="preview" style="zoom:150%;" />
+<img src="preview.gif" alt="preview" style="zoom: 67%;" />
 
 
 
-## 01. Installation 
+### 01. Installation 
 
 ```sh
 pip install streamlit-picture-in-picture-video
@@ -14,7 +14,7 @@ pip install streamlit-picture-in-picture-video
 
 
 
-## 02. Usage
+### 02. Usage
 
 ```python
 import streamlit as st
@@ -26,7 +26,7 @@ streamlit_picture_in_picture_video()
 
 
 
-## 03. Development setup
+### 🛠️ Development setup
 
 **Requirements**
 
@@ -58,7 +58,7 @@ streamlet run streamlit_picture_in_picture_video/example.py
 
 
 
-## 04. Building a Python wheel
+### 📦 Building a Python wheel
 
 01. Change the release flag in `streamlit_picture_in_picture/__init__.py` to `True`
 
