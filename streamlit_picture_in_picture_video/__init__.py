@@ -36,7 +36,7 @@ else:
     _component_func = components.declare_component("streamlit_picture_in_picture_video", url="")
 
 
-def float_init():
+def inject_styles_and_scripts(max_video_width_percentage: int=50):
     # add css to streamlit app
     html_style = '''<style>
     /* Target element-container that contains a video.picture-in-picture-video at any depth */
@@ -46,7 +46,6 @@ def float_init():
         bottom: 20px;
         right: 20px;
         width: 25vw; /* 1/4 of viewport width */
-        max-width: 50vw;
         height: auto;
         border-radius: 10px;
         box-shadow: 0 0 12px rgba(0,0,0,0.3);
@@ -110,6 +109,7 @@ def float_init():
     </style>
     '''
     
+    # Create a JavaScript string with the maxWidthPercentage properly injected
     html_script = """
         <script>
             console.log("Injecting JavaScript for handling dragging and resizing");
@@ -156,6 +156,13 @@ def float_init():
                 let isResizing = false;
                 let startX, startY, startWidth, startHeight;
                 
+                // Function to calculate maximum width based on viewport width
+                function calculateMaxWidth() {
+                    // Calculate max width (percentage of viewport width)
+                    const maxWidthPercentage = MAX_WIDTH_PERCENTAGE_PLACEHOLDER;
+                    return root.defaultView.innerWidth * (maxWidthPercentage / 100);
+                }
+                
                 // Clean up event listeners
                 function cleanupEvents() {
                     isResizing = false;
@@ -200,7 +207,15 @@ def float_init():
                     if (isResizing) {
                         // Calculate new width based on mouse movement
                         const deltaX = startX - e.clientX;
-                        const newWidth = Math.max(240, startWidth + deltaX);
+                        
+                        // Get max width from the calculation function
+                        const maxWidth = calculateMaxWidth();
+                        const minWidth = 240;
+                        
+                        console.log("Max width:", maxWidth);
+                        
+                        // Apply min/max constraints
+                        const newWidth = Math.min(maxWidth, Math.max(minWidth, startWidth + deltaX));
                         
                         // Calculate height based on aspect ratio
                         const newHeight = newWidth / aspectRatio;
@@ -215,8 +230,8 @@ def float_init():
                         const deltaY = e.clientY - startY;
                         
                         // Update position (keeping it anchored to bottom-right)
-                        const viewportWidth = window.innerWidth;
-                        const viewportHeight = window.innerHeight;
+                        const viewportWidth = root.defaultView.innerWidth;
+                        const viewportHeight = root.defaultView.innerHeight;
                         
                         const currRight = parseInt(videoContainer.style.right || '20', 10);
                         const currBottom = parseInt(videoContainer.style.bottom || '20', 10);
@@ -235,9 +250,31 @@ def float_init():
                     cleanupEvents();
                 }
                 
+                // Handle window resize to maintain constraints
+                root.defaultView.addEventListener('resize', function() {
+                    // Get current width
+                    const currentWidth = videoContainer.offsetWidth;
+                    
+                    // Get max width from the calculation function
+                    const maxWidth = calculateMaxWidth();
+
+                    console.log("Current width:", currentWidth);
+                    
+                    // If current width exceeds max width, resize
+                    if (currentWidth > maxWidth) {
+                        const newWidth = maxWidth;
+                        const newHeight = newWidth / aspectRatio;
+                        
+                        videoContainer.style.width = newWidth + 'px';
+                        videoContainer.style.height = newHeight + 'px';
+                    }
+                });
             }, 100); // Wait for elements to be fully loaded
         </script>
     """
+    
+    # Replace placeholder with actual value
+    html_script = html_script.replace('MAX_WIDTH_PERCENTAGE_PLACEHOLDER', str(max_video_width_percentage))
 
     st.html(html_style)
 
@@ -254,7 +291,7 @@ def float_init():
 # `declare_component` and call it done. The wrapper allows us to customize
 # our component's API: we can pre-process its input args, post-process its
 # output value, and add a docstring for users.
-def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, auto_play: bool=False, key=None):
+def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, auto_play: bool=False, max_width: int=50, key=None):
     """Create a new instance of "streamlit_picture_in_picture_video".
 
     Parameters
@@ -265,12 +302,14 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
         Whether to show video controls.
     auto_play: bool
         Whether to autoplay the video.
+    max_width: int
+        The maximum width of the video in % of the window width.
     key: str or None
         An optional key that uniquely identifies this component.
 
     """
     # Initialize the floating video functionality
-    float_init()
+    inject_styles_and_scripts(max_video_width_percentage=max_width)
 
     # Check if the video is a local file, if yes, encode it to base64. Otherwise, use the url.
     if os.path.exists(video_src):
