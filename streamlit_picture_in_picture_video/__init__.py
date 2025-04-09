@@ -36,34 +36,11 @@ else:
     _component_func = components.declare_component("streamlit_picture_in_picture_video", url="")
 
 
-def float_init(theme=True, include_unstable_primary=False):
+def float_init():
     # add css to streamlit app
     html_style = '''<style>
-    div.element-container:has(div.float) {
-        position: absolute!important;
-    }
-    div.element-container:has(div.floating) {
-        position: absolute!important;
-    }
-    div:has( >.element-container div.float) {
-        display: flex;
-        flex-direction: column;
-        position: fixed;
-        z-index: 99;
-    }
-    div.float, div.elim {
-        display: none;
-        height:0%;
-    }
-    div.floating {
-        display: flex;
-        flex-direction: column;
-        position: fixed;
-        z-index: 99; 
-    }
-
-    /* Target element-container that contains a video#main-video at any depth */
-    div.element-container:has(video#main-video) {
+    /* Target element-container that contains a video.picture-in-picture-video at any depth */
+    div.element-container:has(video.picture-in-picture-video) {
         position: fixed !important;
         z-index: 99;
         bottom: 20px;
@@ -82,7 +59,7 @@ def float_init(theme=True, include_unstable_primary=False):
     }
     
     /* Add a resize handle */
-    div.element-container:has(video#main-video)::after {
+    div.element-container:has(video.picture-in-picture-video)::after {
         content: '';
         position: absolute;
         top: 0;
@@ -93,8 +70,13 @@ def float_init(theme=True, include_unstable_primary=False):
         background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 50%);
     }
     
+    div.stHtml:has(video.picture-in-picture-video) {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
     /* Make sure the video itself fits correctly in the container */
-    video#main-video {
+    video.picture-in-picture-video {
         width: 100%;
         height: auto;
         display: block;
@@ -102,35 +84,25 @@ def float_init(theme=True, include_unstable_primary=False):
     }
     
     /* Add a draggable header for moving the video */
-    div.element-container:has(video#main-video)::before {
+    div.element-container:has(video.picture-in-picture-video)::before {
         content: '';
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 65px;
-        // for debugging
-        // background-color: rgba(0,0,0,0.5);
         cursor: move;
         z-index: 101;
         opacity: 0;
         transition: opacity 0.2s;
     }
     
-    div.element-container:has(video#main-video):hover::before {
+    div.element-container:has(video.picture-in-picture-video):hover::before {
         opacity: 1;
-    }
-    
-    /* Style for any controls or elements inside the container */
-    div.element-container:has(video#main-video) button {
-        position: absolute;
-        bottom: 10px;
-        right: 10px;
-        z-index: 100;
     }
 
     /* Workaround for 1rem gap between containers that injects JS */
-    div.element-container:has(div.pin-container) {
+    div.element-container:has(div.margin-eater) {
         margin-top: -3.5rem;
         display: block;
         background: green;
@@ -149,9 +121,8 @@ def float_init(theme=True, include_unstable_primary=False):
             setTimeout(function() {
                     
                     
-                const videoContainer = root.querySelector('div.element-container:has(video#main-video)');
-                const video = root.querySelector('video#main-video');
-                
+                const videoContainer = root.querySelector('div.element-container:has(video.picture-in-picture-video)');
+                const video = root.querySelector('video.picture-in-picture-video');                
                 if (!videoContainer || !video) {
                     console.log("Video container not found yet");
                     return;
@@ -275,7 +246,7 @@ def float_init(theme=True, include_unstable_primary=False):
     components.html(html_script, height=0)
 
     # Add a container that allows to compensate for 1rem gap between containers that injects JS
-    st.html("""<div class="pin-container" style="padding: 0;"></div>""")
+    st.html("""<div class="margin-eater" style="padding: 0;"></div>""")
 
 
 # Create a wrapper function for the component. This is an optional
@@ -289,20 +260,13 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
     Parameters
     ----------
     video_src: str
-        The URL of the video to display.
+        The URL of the video to display or the path to the video file.
     controls: bool
         Whether to show video controls.
     auto_play: bool
         Whether to autoplay the video.
     key: str or None
         An optional key that uniquely identifies this component.
-
-    Returns
-    -------
-    int
-        The number of times the component's "Click Me" button has been clicked.
-        (This is the value passed to `Streamlit.setComponentValue` on the
-        frontend.)
 
     """
     # Initialize the floating video functionality
@@ -316,7 +280,7 @@ def streamlit_picture_in_picture_video(video_src: str, controls: bool = True, au
         video_src = f"data:video/mp4;base64,{b64_encoded}"
 
     # Create the video tag with proper HTML
-    video_tag = f'<video id="main-video" src="{video_src}" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"'
+    video_tag = f'<video class="picture-in-picture-video" src="{video_src}" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"'
     if controls:
         video_tag += ' controls'
     if auto_play:
